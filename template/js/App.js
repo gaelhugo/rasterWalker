@@ -1,9 +1,9 @@
 'use strict';
 
 const DIMENSION = {
-  'width': 1280,
-  'height': 720,
-}
+  'width': 1000,
+  'height': 1000,
+};
 
 class App {
   constructor() {
@@ -13,6 +13,44 @@ class App {
     this.canvas.height = DIMENSION.height;
     this.ctx = this.canvas.getContext('2d');
     document.body.appendChild(this.canvas);
+
+    this.loadImage('andy.jpg');
+  }
+
+  loadImage(imageurl) {
+    console.log('charger l\'image');
+    this.img = new Image();
+    this.img.onload = this.onImageLoaded.bind(this);
+    this.img.src = imageurl;
+  }
+  onImageLoaded(e) {
+    // document.body.appendChild(this.img);
+    this.ctx.drawImage(this.img, 0, 0);
+    this.imageDatas =
+        this.ctx.getImageData(0, 0, this.img.width, this.img.height);
+    this.ctx.clearRect(0, 0, DIMENSION.width, DIMENSION.height);
+    this.ctx.fillStyle = '#ffffff';
+
+    for (let y = 0; y < this.img.height; y += 6) {
+      for (let x = 0; x < this.img.width; x += 6) {
+        let index = (y * this.img.width + x) * 4;
+        let red = this.imageDatas.data[index];
+        let green = this.imageDatas.data[index + 1];
+        let blue = this.imageDatas.data[index + 2];
+        let brightness = Math.round(red * 0.3 + green * 0.59 + blue * 0.11);
+
+        let radius = (brightness / 255) * 6;
+
+        this.ctx.fillStyle = 'rgb(' + red + ',' + blue + ',' + blue + ')';
+        // this.ctx.fillRect(x, y, 6, 6);
+        if (brightness > 50) {
+          this.ctx.beginPath();
+          this.ctx.arc(x * 2, y * 2, radius, 0, Math.PI * 2, false);
+          this.ctx.fill();
+          this.ctx.closePath();
+        }
+      }
+    }
   }
 }
 
